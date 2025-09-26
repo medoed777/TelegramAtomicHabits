@@ -7,7 +7,9 @@ class HabitValidator:
     def validate_time_success(self, attrs):
         """Проверяет, что время выполнения привычки не превышает 120 секунд."""
         if attrs.get("time_success", 0) > 120:
-            raise serializers.ValidationError("Время выполнения не должно превышать 120 секунд.")
+            raise serializers.ValidationError(
+                "Время выполнения не должно превышать 120 секунд."
+            )
 
     def validate_related_habit(self, attrs):
         """Проверяет, что в качестве связанной привычки выбрана только приятная привычка."""
@@ -31,13 +33,19 @@ class HabitValidator:
         if attrs.get("is_pleasant"):
 
             if attrs.get("reward"):
-                raise serializers.ValidationError("Приятная привычка не может иметь вознаграждения.")
+                raise serializers.ValidationError(
+                    "Приятная привычка не может иметь вознаграждения."
+                )
 
             if attrs.get("fk_habit"):
-                raise serializers.ValidationError("Приятная привычка не может быть связана с другой привычкой.")
+                raise serializers.ValidationError(
+                    "Приятная привычка не может быть связана с другой привычкой."
+                )
 
             if attrs.get("period") != 1:
-                raise serializers.ValidationError("Приятная привычка не должна иметь периодичности выполнения.")
+                raise serializers.ValidationError(
+                    "Приятная привычка не должна иметь периодичности выполнения."
+                )
 
     def validate_good_habit_requirements(self, attrs):
         """Проверяет, что полезная привычка имеет либо вознаграждение,
@@ -52,8 +60,9 @@ class HabitValidator:
                 )
 
             if not attrs.get("period") or attrs.get("period") < 1:
-                raise serializers.ValidationError("Полезная привычка должна иметь периодичность выполнения.")
-
+                raise serializers.ValidationError(
+                    "Полезная привычка должна иметь периодичность выполнения."
+                )
 
     def __call__(self, attrs):
         """Основной метод валидации, который вызывает все проверки."""

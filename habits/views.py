@@ -1,6 +1,7 @@
-from django.shortcuts import get_object_or_404, render
-from rest_framework import generics
+from django.shortcuts import get_object_or_404
 from django_celery_beat.models import PeriodicTask
+from rest_framework import generics
+
 from habits.models import Habit
 from habits.paginators import HabitsPagination
 from habits.serializers import HabitsSerializer, PublicHabitsSerializer
@@ -57,7 +58,9 @@ class HabitUpdateAPIView(generics.UpdateAPIView):
 
             if habit.user.tg_chat_id:
                 try:
-                    task = get_object_or_404(PeriodicTask, name=f"Habit Task - {habit.pk}")
+                    task = get_object_or_404(
+                        PeriodicTask, name=f"Habit Task - {habit.pk}"
+                    )
                     task.enabled = False
                     task.delete()
                 except PeriodicTask.DoesNotExist:
