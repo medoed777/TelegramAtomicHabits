@@ -1,26 +1,27 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
-
+from django_celery_beat.models import PeriodicTask
 from habits.models import Habit
 from habits.paginators import HabitsPagination
 from habits.serializers import HabitsSerializer, PublicHabitsSerializer
-# from habits.services import create_replacements, create_schedule, create_task, make_replacements
+from habits.services import set_schedule
 from users.permissions import IsOwner
 
 
 class HabitCreateAPIView(generics.CreateAPIView):
     serializer_class = HabitsSerializer
+    permission_classes = (IsOwner,)
 
     def perform_create(self, serializer):
         habit = serializer.save(user=self.request.user)
+        self._update_habit(habit)
+
+    def _update_habit(self, habit):
         if not habit.is_pleasant:
-            replacements = create_replacements(habit)
-            habit.frequency = make_replacements(habit.frequency, replacements)
             habit.save()
 
             if habit.user.tg_chat_id:
-                schedule = create_schedule(habit.frequency)
-                create_task(schedule, habit)
+                set_schedule(habit)
 
 
 class PublicHabitListAPIView(generics.ListAPIView):
@@ -52,17 +53,17 @@ class HabitUpdateAPIView(generics.UpdateAPIView):
     def perform_update(self, serializer):
         habit = serializer.save(user=self.request.user)
         if not habit.is_pleasant:
-            replacements = create_replacements(habit)
-            habit.frequency = make_replacements(habit.frequency, replacements)
             habit.save()
 
             if habit.user.tg_chat_id:
-                task = get_object_or_404(PeriodicTask, name=f"Sending reminder {habit.pk}")
-                schedule = create_schedule(habit.frequency)
-                if task:
+                try:
+                    task = get_object_or_404(PeriodicTask, name=f"Habit Task - {habit.pk}")
                     task.enabled = False
                     task.delete()
-                create_task(schedule, habit)
+                except PeriodicTask.DoesNotExist:
+                    pass
+
+                set_schedule(habit)
 
 
 class HabitDestroyAPIView(generics.DestroyAPIView):
