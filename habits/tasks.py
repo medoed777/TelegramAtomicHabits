@@ -1,20 +1,23 @@
-import os
-
-import telebot
+import requests
 from celery import shared_task
-from dotenv import load_dotenv
 
+from config.settings import TELEGRAM_BOT_TOKEN
 from habits.models import Habit
-
-load_dotenv()
 
 
 @shared_task
-def habits_notification(object_pk):
-    habit = Habit.objects.get(pk=object_pk)
-    bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
-    message = (
+def send_message(pk) -> None:
+    """Функция напоминания пользователю."""
+    habit = Habit.objects.get(pk=pk)
+    text = (
         f"Трекер привычек напоминает: требуется совершить "
         f"{habit.action} в {habit.time} в {habit.place}"
+        f"Не забудьте {habit.reward if habit.reward else habit.related_habit}."
     )
-    bot.send_message(habit.user.chat_id, message)
+    params = {
+        "text": text,
+        "chat_id": habit.user.tg_chat_id,
+    }
+    requests.get(
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage", params=params
+    )

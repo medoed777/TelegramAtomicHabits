@@ -22,7 +22,9 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-    chat_id = models.CharField(max_length=50, verbose_name="ID номер чата в телеграм")
+    chat_id = models.CharField(
+        max_length=50, blank=True, null=True, verbose_name="ID номер чата в телеграм"
+    )
     avatar = models.ImageField(
         upload_to="users/avatar", verbose_name="Аватар", blank=True, null=True
     )
