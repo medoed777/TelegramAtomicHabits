@@ -13,7 +13,7 @@ class User(AbstractUser):
         null=False,
     )
     phone = models.CharField(
-        max_length=15, verbose_name="Телефон", help_text="Введите номер телефона"
+        max_length=15, verbose_name="Телефон", help_text="Введите номер телефона",
     )
     city = models.CharField(
         max_length=50,
@@ -23,10 +23,10 @@ class User(AbstractUser):
         null=True,
     )
     chat_id = models.CharField(
-        max_length=50, blank=True, null=True, verbose_name="ID номер чата в телеграм"
+        max_length=50, verbose_name="ID номер чата в телеграм", blank=True, null=True,
     )
     avatar = models.ImageField(
-        upload_to="users/avatar", verbose_name="Аватар", blank=True, null=True
+        upload_to="users/avatar", verbose_name="Аватар", blank=True, null=True,
     )
 
     USERNAME_FIELD = "email"
