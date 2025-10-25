@@ -16,7 +16,7 @@ services:
       REDIS_HOST: redis
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles
+      - static_volume:/app/static
     depends_on:
       - db
       - redis
@@ -27,8 +27,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - static_volume:/app/staticfiles
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/static
     depends_on:
       - web
 
